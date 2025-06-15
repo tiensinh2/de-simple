@@ -15,7 +15,7 @@ parser = argparse.ArgumentParser(description=desc)
 
 parser.add_argument('-dataset', help='Dataset', type=str, default='icews14', choices = ['icews14', 'icews05-15', 'gdelt'])
 parser.add_argument('-model', help='Model', type=str, default='DE_DistMult', choices = ['DE_DistMult', 'DE_TransE', 'DE_SimplE'])
-parser.add_argument('-ne', help='Number of epochs', type=int, default=500, choices = [500])
+parser.add_argument('-ne', help='Number of epochs', type=int, default=500, choices = [500, 100, 80])
 parser.add_argument('-bsize', help='Batch size', type=int, default=512, choices = [512])
 parser.add_argument('-lr', help='Learning rate', type=float, default=0.001, choices = [0.001])
 parser.add_argument('-reg_lambda', help='L2 regularization parameter', type=float, default=0.0, choices = [0.0])
@@ -30,19 +30,29 @@ args = parser.parse_args()
 dataset = Dataset(args.dataset)
 
 params = Params(
-    ne=args.ne, 
-    bsize=args.bsize, 
-    lr=args.lr, 
-    reg_lambda=args.reg_lambda, 
-    emb_dim=args.emb_dim, 
-    neg_ratio=args.neg_ratio, 
-    dropout=args.dropout, 
-    save_each=args.save_each, 
+    ne=args.ne,
+    bsize=args.bsize,
+    lr=args.lr,
+    reg_lambda=args.reg_lambda,
+    emb_dim=args.emb_dim,
+    neg_ratio=args.neg_ratio,
+    dropout=args.dropout,
+    save_each=args.save_each,
     se_prop=args.se_prop
 )
 
 trainer = Trainer(dataset, params, args.model)
+
+# 👉 Thêm tại đây
+total_params = sum(p.numel() for p in trainer.model.parameters() if p.requires_grad)
+print(f"Number of trainable parameters: {total_params}")
+
+import time
+start_time = time.time()
 trainer.train()
+end_time = time.time()
+print(f"Training time: {end_time - start_time:.2f} seconds")
+
 
 # validating the trained models. we seect the model that has the best validation performance as the fina model
 validation_idx = [str(int(args.save_each * (i + 1))) for i in range(args.ne // args.save_each)]
