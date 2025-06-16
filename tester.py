@@ -14,6 +14,7 @@ from de_transe import DE_TransE
 from de_simple import DE_SimplE
 from measure import Measure
 from params import Params
+from collections import OrderedDict
 
 class Tester:
     def __init__(self, dataset, model_path, valid_or_test, model_name='DE_SimplE', params=None):
@@ -38,8 +39,16 @@ class Tester:
         else:
             raise ValueError(f"Unknown model name: {model_name}")
 
+        # Xử lý nếu checkpoint được lưu với DataParallel
+        state_dict = checkpoint['model_state_dict']
+        if any(k.startswith('module.') for k in state_dict.keys()):
+            new_state_dict = OrderedDict()
+            for k, v in state_dict.items():
+                new_state_dict[k.replace('module.', '')] = v
+            state_dict = new_state_dict
+
         # Load weights từ checkpoint
-        self.model.load_state_dict(checkpoint['model_state_dict'])
+        self.model.load_state_dict(state_dict)
 
         # Chuyển sang eval mode
         self.model.eval()
