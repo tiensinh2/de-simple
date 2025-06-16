@@ -70,7 +70,8 @@ print(f"Training time: {end_time - start_time:.2f} seconds")
 # Tìm epoch tốt nhất dựa trên tập validation
 validation_idx = [str(int(args.save_each * (i + 1))) for i in range(args.ne // args.save_each)]
 best_mrr = -1.0
-best_index = '0'
+best_index = None   # Không đặt mặc định 0 nữa
+
 model_prefix = "models/" + args.model + "/" + args.dataset + "/" + params.str_() + "_"
 
 for idx in validation_idx:
@@ -84,8 +85,12 @@ for idx in validation_idx:
     except Exception as e:
         print(f"Skipping {model_path} due to error: {e}")
 
-# Test với mô hình tốt nhất
+if best_index is None:
+    # Nếu không tìm được checkpoint hợp lệ, lấy checkpoint cuối cùng train
+    best_index = str(args.ne)
+
 print("Best epoch: " + best_index)
 model_path = model_prefix + best_index + ".chkpnt"
 tester = Tester(dataset, model_path, "test")
 tester.test()
+
