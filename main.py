@@ -38,6 +38,7 @@ parser.add_argument('-se_prop', help='Static embedding proportion', type=float, 
 
 # Thêm: resume từ checkpoint
 parser.add_argument('-resume', help='Path to checkpoint to resume from', type=str, default=None)
+parser.add_argument('--resume_from', dest='resume_from', help='Checkpoint file to resume training from', type=str, default=None)
 
 args = parser.parse_args()
 
@@ -55,7 +56,7 @@ params = Params(
     se_prop=args.se_prop
 )
 
-trainer = Trainer(dataset, params, args.model, resume_from=args.resume)
+trainer = Trainer(dataset, params, args.model, resume_from=args.resume_from)
 
 # In số lượng tham số huấn luyện
 total_params = sum(p.numel() for p in trainer.model.parameters() if p.requires_grad)
