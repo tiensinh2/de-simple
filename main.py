@@ -32,7 +32,7 @@ parser.add_argument('-neg_ratio', help='Negative ratio', type=int, default=500,
                     choices=[500])
 parser.add_argument('-dropout', help='Dropout probability', type=float, default=0.4,
                     choices=[0.0, 0.2, 0.4])
-parser.add_argument('-save_each', help='Save model and validate each K epochs', type=int, default=20,
+parser.add_argument('-save_each', help='Save model and validate each K epochs', type=int, default=3,
                     choices=[20])
 parser.add_argument('-se_prop', help='Static embedding proportion', type=float, default=0.36)
 
