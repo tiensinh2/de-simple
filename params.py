@@ -7,14 +7,14 @@
 class Params:
 
     def __init__(self, 
-                 ne=500, 
+                 ne=3, 
                  bsize=512, 
                  lr=0.001, 
                  reg_lambda=0.0, 
                  emb_dim=100, 
                  neg_ratio=20, 
                  dropout=0.4,  
-                 save_each=50,  
+                 save_each=3,  
                  se_prop=0.9 ):
 
         self.ne = ne
