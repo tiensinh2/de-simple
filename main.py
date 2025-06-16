@@ -77,7 +77,7 @@ model_prefix = "models/" + args.model + "/" + args.dataset + "/" + params.str_()
 for idx in validation_idx:
     model_path = model_prefix + idx + ".chkpnt"
     try:
-        tester = Tester(dataset, model_path, "valid")
+        tester = Tester(dataset, model_path, "valid", model_name=args.model, params=params)
         mrr = tester.test()
         if mrr > best_mrr:
             best_mrr = mrr
@@ -86,11 +86,11 @@ for idx in validation_idx:
         print(f"Skipping {model_path} due to error: {e}")
 
 if best_index is None:
-    # Nếu không tìm được checkpoint hợp lệ, lấy checkpoint cuối cùng train
     best_index = str(args.ne)
 
 print("Best epoch: " + best_index)
 model_path = model_prefix + best_index + ".chkpnt"
-tester = Tester(dataset, model_path, "test")
+tester = Tester(dataset, model_path, "test", model_name=args.model, params=params)
 tester.test()
+
 
