@@ -4,6 +4,7 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 #
+
 import torch
 import numpy as np
 from dataset import Dataset
@@ -14,14 +15,32 @@ from de_simple import DE_SimplE
 from measure import Measure
 
 class Tester:
-    def __init__(self, dataset, model_path, valid_or_test):
-        self.model = torch.load(model_path, weights_only=False)
-        self.model.eval()
+    def __init__(self, dataset, model_path, valid_or_test, model_name='DE_SimplE'):
+        # Load checkpoint dict
+        checkpoint = torch.load(model_path)
+        
         self.dataset = dataset
         self.valid_or_test = valid_or_test
         self.measure = Measure()
+
+        # Khởi tạo model dựa theo model_name
+        if model_name == 'DE_SimplE':
+            # Ví dụ gọi constructor, thay thế tham số nếu cần
+            self.model = DE_SimplE(dataset, None)  # Hoặc các tham số đúng với DE_SimplE
+        elif model_name == 'DE_DistMult':
+            self.model = DE_DistMult(dataset, None)
+        elif model_name == 'DE_TransE':
+            self.model = DE_TransE(dataset, None)
+        else:
+            raise ValueError(f"Unknown model name: {model_name}")
+
+        # Load weights từ checkpoint
+        self.model.load_state_dict(checkpoint['model_state_dict'])
+
+        # Chuyển sang eval mode
+        self.model.eval()
         
-    def getRank(self, sim_scores):#assuming the test fact is the first one
+    def getRank(self, sim_scores):  # assuming the test fact is the first one
         return (sim_scores > sim_scores[0]).sum() + 1
     
     def replaceAndShred(self, fact, raw_or_fil, head_or_tail):
@@ -47,7 +66,6 @@ class Tester:
                     sim_scores = self.model(heads, rels, tails, years, months, days).cpu().data.numpy()
                     rank = self.getRank(sim_scores)
                     self.measure.update(rank, raw_or_fil)
-                    
         
         self.measure.print_()
         print("~~~~~~~~~~~~~")
@@ -55,4 +73,3 @@ class Tester:
         self.measure.print_()
         
         return self.measure.mrr["fil"]
-        
